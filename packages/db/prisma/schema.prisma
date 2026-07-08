@@ -1,0 +1,152 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SUPER_ADMIN
+  AGENCY_ADMIN
+  EDITOR
+  CLIENT
+}
+
+enum ClipFormat {
+  TIKTOK
+  REELS
+  LINKEDIN
+  THREAD
+  NEWSLETTER
+}
+
+enum ClipStatus {
+  DRAFT
+  PROCESSING
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+  SCHEDULED
+  PUBLISHED
+  FAILED
+}
+
+enum AssetStatus {
+  PROCESSING
+  READY
+  FAILED
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  firstName    String?
+  lastName     String?
+  phoneNumber  String?
+  gender       String?
+  passwordHash String
+  role         Role      @default(EDITOR)
+  agencyId     String?
+  agency       Agency?   @relation(fields: [agencyId], references: [id])
+  clientId     String?
+  client       Client?   @relation(fields: [clientId], references: [id])
+  comments     Comment[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Agency {
+  id                 String         @id @default(cuid())
+  name               String
+  subdomain          String         @unique
+  subscriptionTier   String?
+  stripeCustomerId   String?
+  users              User[]
+  clients            Client[]
+  sourceAssets       SourceAsset[]
+  subscriptions      Subscription[]
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+}
+
+model Client {
+  id           String        @id @default(cuid())
+  name         String
+  agencyId     String
+  agency       Agency        @relation(fields: [agencyId], references: [id])
+  brandKits    BrandKit[]
+  sourceAssets SourceAsset[]
+  users        User[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model SourceAsset {
+  id            String          @id @default(cuid())
+  agencyId      String
+  agency        Agency          @relation(fields: [agencyId], references: [id])
+  clientId      String
+  client        Client          @relation(fields: [clientId], references: [id])
+  uploadedById  String
+  youtubeUrl    String?
+  fileUrl       String?
+  title         String?
+  thumbnailUrl  String?
+  duration      Int?            // Duration in seconds
+  transcription String?         @db.Text // AI-generated transcript
+  status        AssetStatus     @default(PROCESSING)
+  clips         GeneratedClip[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+model GeneratedClip {
+  id            String      @id @default(cuid())
+  sourceAssetId String
+  sourceAsset   SourceAsset @relation(fields: [sourceAssetId], references: [id])
+  format        ClipFormat
+  videoUrl      String?
+  thumbnailUrl  String?
+  title         String?
+  caption       String?     @db.Text
+  scheduledFor  DateTime?
+  status        ClipStatus  @default(DRAFT)
+  reviewerId    String?
+  comments      Comment[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model BrandKit {
+  id        String   @id @default(cuid())
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id])
+  logoUrl   String?
+  colors    String?
+  fonts     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Comment {
+  id        String        @id @default(cuid())
+  clipId    String
+  clip      GeneratedClip @relation(fields: [clipId], references: [id])
+  userId    String
+  user      User          @relation(fields: [userId], references: [id])
+  text      String
+  createdAt DateTime      @default(now())
+}
+
+model Subscription {
+  id                   String   @id @default(cuid())
+  agencyId             String
+  agency               Agency   @relation(fields: [agencyId], references: [id])
+  stripeSubscriptionId String   @unique
+  plan                 String
+  status               String
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
