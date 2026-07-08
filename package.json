@@ -9,6 +9,7 @@
     "dev:web": "npm run dev -w apps/web",
     "dev:api": "npm run dev -w apps/api",
     "db:generate": "npm run generate -w packages/db",
-    "db:push": "npm run push -w packages/db"
+    "db:push": "npm run push -w packages/db",
+    "postinstall": "npm run db:generate"
   }
 }
