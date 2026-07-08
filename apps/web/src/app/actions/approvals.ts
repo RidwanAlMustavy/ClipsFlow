@@ -4,7 +4,7 @@ import { prisma } from "@clipsflow/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { revalidatePath } from "next/cache";
-import { ClipStatus } from "@prisma/client";
+import { ClipStatus } from "@clipsflow/db";
 
 export async function updateClipStatus(clipId: string, status: ClipStatus) {
   const session = await getServerSession(authOptions);

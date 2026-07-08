@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { updateClipStatus } from "@/app/actions/approvals";
-import { ClipStatus } from "@prisma/client";
+import { ClipStatus } from "@clipsflow/db";
 
 interface Props {
   clipId: string;

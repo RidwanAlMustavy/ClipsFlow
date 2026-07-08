@@ -4,7 +4,7 @@ import { prisma } from "@clipsflow/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { revalidatePath } from "next/cache";
-import { Role } from "@prisma/client";
+import { Role } from "@clipsflow/db";
 
 export async function inviteAgencyMember(formData: FormData) {
   const session = await getServerSession(authOptions);

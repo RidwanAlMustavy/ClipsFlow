@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Icons } from "@/components/ui/icons";
 import { updateAgencyMemberRole, removeAgencyMember } from "@/app/actions/team";
-import { Role } from "@prisma/client";
+import { Role } from "@clipsflow/db";
 
 interface Props {
   userId: string;
